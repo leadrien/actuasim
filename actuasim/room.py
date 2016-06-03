@@ -4,7 +4,7 @@ from PyQt5.QtWidgets import *
 
 from actuasim.blind import BlindWidget
 from actuasim.valve import ValveWidget
-
+from knxnet.utils import *
 
 __author__ = "Adrien Lescourt"
 __copyright__ = "HES-SO 2015, Project EMG4B"
@@ -61,11 +61,15 @@ class Room(QWidget):
             for blind in room_dict['blinds']:
                 addr = blind['address'].split('@')
                 value = blind['value']
-                blind_list.append(BlindWidget(addr[0], addr[1], value))
+                blind_list.append(BlindWidget(IndividualAddress.from_str(addr[0]),
+                                              GroupAddress.from_str(addr[1]),
+                                              value))
             for valve in room_dict['valves']:
                 addr = valve['address'].split('@')
                 value = valve['value']
-                valve_list.append(ValveWidget(addr[0], addr[1], value))
+                valve_list.append(ValveWidget(IndividualAddress.from_str(addr[0]),
+                                              GroupAddress.from_str(addr[1]),
+                                              value))
         return cls(None, title, blind_list, valve_list)
 
     def get_room_dict(self):

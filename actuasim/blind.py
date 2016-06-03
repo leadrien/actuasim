@@ -85,6 +85,11 @@ class BlindWidget(QWidget):
         self.animation_finished()
         self.animate_progressbar(100)
 
+    def move_to(self, value):
+        self.logger.info('Blind ' + self.address_str + ' MOVE TO %s' % value)
+        self.animation_finished()
+        self.animate_progressbar(value)
+
     def animate_progressbar(self, end_value):
         if end_value == self.ui.progressBar.value():
             return
