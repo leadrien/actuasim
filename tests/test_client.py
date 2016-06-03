@@ -103,6 +103,7 @@ def print_usage():
     print('DATA (INTEGER):')
     print('              0 for blind up')
     print('              1 for blind down')
+    print('              [0-255] for blind position')
     print('              [0-255] for valve position')
     print('Example: python3 test_client.py -a 1/4/1 1')
 
@@ -119,7 +120,9 @@ if __name__ == '__main__':
             send_data_to_group_addr(dest, int(sys.argv[3]), 2)
         elif dest.main_group == 1:
             send_data_to_group_addr(dest, int(sys.argv[3]), 1)
+        elif dest.main_group == 3:
+            send_data_to_group_addr(dest, int(sys.argv[3]), 2)
         else:
-            print('Unsupported destination group address: main group has to be [0-1]')
+            print('Unsupported destination group address: main group has to be [0,1,3]')
     else:
         print_usage()

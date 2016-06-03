@@ -52,12 +52,6 @@ class BlindWidget(QWidget):
     def position(self):
         return self.ui.progressBar.value()
 
-    @property
-    def group_addr_without_action(self):
-        # 3/4/1 -> 4/1. Return only the floor and the block. Action is ignored
-        # WARNING: only works if the command is strictly 1 char
-        return self.group_address[2:]
-
     @position.setter
     def position(self, value):
         if value < 0:
