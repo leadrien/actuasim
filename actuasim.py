@@ -102,44 +102,44 @@ class Actuasim(QMainWindow):
                         "room 1": {
                             "blinds": [
                                 {
-                                    "value": 48,
-                                    "address": "4.11.1@1/4/1"
+                                    "value": 19,
+                                    "address": "1.0.0@1/4/1"
                                 },
                                 {
-                                    "value": 100,
-                                    "address": "4.11.2@1/4/2"
+                                    "value": 19,
+                                    "address": "1.0.1@1/4/2"
                                 }
                             ],
                             "valves": [
                                 {
-                                    "value": 48,
-                                    "address": "4.0.1@0/4/1"
+                                    "value": 19,
+                                    "address": "1.0.2@0/4/1"
                                 },
                                 {
-                                    "value": 100,
-                                    "address": "4.1.1@0/4/2"
+                                    "value": 19,
+                                    "address": "1.0.3@0/4/2"
                                 }
                             ]
                         },
                         "room 2": {
                             "blinds": [
                                 {
-                                    "value": 33,
-                                    "address": "4.11.2@1/4/1"
+                                    "value": 19,
+                                    "address": "2.0.0@1/4/10"
                                 },
                                 {
-                                    "value": 33,
-                                    "address": "4.11.2@1/4/2"
+                                    "value": 19,
+                                    "address": "2.0.1@1/4/11"
                                 }
                             ],
                             "valves": [
                                 {
-                                    "value": 33,
-                                    "address": "4.0.2@0/4/10"
+                                    "value": 19,
+                                    "address": "2.0.2@0/4/10"
                                 },
                                 {
-                                    "value": 33,
-                                    "address": "4.1.2@0/4/11"
+                                    "value": 19,
+                                    "address": "2.0.3@0/4/11"
                                 }
                             ]
                         }

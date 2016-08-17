@@ -105,6 +105,9 @@ def print_usage():
     print('              1 for blind down')
     print('              [0-255] for blind position')
     print('              [0-255] for valve position')
+    print('Main Group address: 0 = valve')
+    print('                    1 = blind up down')
+    print('                    3 = blind position')
     print('Example: python3 test_client.py -a 1/4/1 1')
 
 if __name__ == '__main__':
