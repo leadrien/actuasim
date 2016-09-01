@@ -15,7 +15,7 @@ __status__ = "Prototype"
 class Knxserver(QObject, threading.Thread):
 
     udp_port = 3671
-    trigger = pyqtSignal(bytes)
+    trigger = pyqtSignal([list])
 
     def __init__(self):
         super().__init__()
@@ -30,7 +30,7 @@ class Knxserver(QObject, threading.Thread):
                 data, self.addr = self.socket.recvfrom(1024)
                 if data:
                     if len(data) > len(b'exit'):
-                        self.trigger.emit(data)
+                        self.trigger.emit([data])
         finally:
             self.socket.close()
 

@@ -148,8 +148,8 @@ class Actuasim(QMainWindow):
         self.load_rooms(template)
 
     def frame_received(self, frame):
-        self.logger.info('Frame received:' + str([hex(h) for h in frame]))
-        decoded_frame = knxnet.decode_frame(frame)
+        self.logger.info('Frame received:' + str([hex(h) for h in frame[0]]))
+        decoded_frame = knxnet.decode_frame(frame[0])
         if decoded_frame.header.service_type_descriptor == knxnet.ServiceTypeDescriptor.CONNECTION_REQUEST:
             self.logger.info('= Connection request:\n' + str(decoded_frame))
             conn_resp = knxnet.create_frame(knxnet.ServiceTypeDescriptor.CONNECTION_RESPONSE,
