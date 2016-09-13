@@ -21,7 +21,7 @@ from actuasim.command_handler import CommandHandler
 __author__ = "Adrien Lescourt"
 __copyright__ = "HES-SO 2015, Project EMG4B"
 __credits__ = ["Adrien Lescourt"]
-__version__ = "1.0.0"
+__version__ = "1.0.1"
 __email__ = "adrien.lescourt@gmail.com"
 __status__ = "Prototype"
 
@@ -177,13 +177,28 @@ class Actuasim(QMainWindow):
             self.logger.info('= Disconnect response:\n' + str(disconnect_resp))
         elif decoded_frame.header.service_type_descriptor == knxnet.ServiceTypeDescriptor.TUNNELLING_REQUEST:
             self.logger.info('= Tunnelling request:\n' + str(decoded_frame))
-            self.command_handler.handle_tunnelling_request(decoded_frame)
+            tunnel_req_response = self.command_handler.handle_tunnelling_request(decoded_frame)
             tunnel_ack = knxnet.create_frame(knxnet.ServiceTypeDescriptor.TUNNELLING_ACK,
                                              self.channel_id,
                                              self.status)
             self.knxserver.send(tunnel_ack.frame)
             self.logger.info('Frame sent:' + repr(tunnel_ack))
             self.logger.info('= Tunnelling ack:\n' + str(tunnel_ack))
+
+            # TODO: after sending our tunnelling ack
+            # we must send a tunnelling request to confirm the data
+            # and read a tunnelling ack
+            # and if the 1st request is a read, then we can send the tunnelling request with the data
+
+            # TODO: if a tunnelling request read has an invalid dest group addr
+            # actuasim does not send anything
+
+            # Do we have some tunnelling requests to send?
+            if tunnel_req_response:
+                self.knxserver.send(tunnel_req_response.frame)
+                self.logger.info('Frame sent:' + repr(tunnel_req_response))
+                self.logger.info('= Tunnelling request:\n' + str(tunnel_req_response))
+
         else:
             self.logger.info('The frame is not supported')
 
