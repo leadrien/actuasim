@@ -27,7 +27,25 @@ class CommandHandler:
     def _valve_command(self, tunnelling_request):
         valve = self._get_valve_from_group_address(tunnelling_request.dest_addr_group)
         if valve is not None:
-            valve.position = int(tunnelling_request.data / 0xFF * 100)
+            # read
+            if tunnelling_request.apci == 0:
+                data = valve.position
+                data_size = 2
+                apci = 1
+                data_service = 0x29
+                sequence_counter = 1
+                tunnel_req_response = knxnet.create_frame(knxnet.ServiceTypeDescriptor.TUNNELLING_REQUEST,
+                                                          tunnelling_request.dest_addr_group,
+                                                          tunnelling_request.channel_id,
+                                                          data,
+                                                          data_size,
+                                                          apci,
+                                                          data_service,
+                                                          sequence_counter)
+                return tunnel_req_response
+            # write
+            elif tunnelling_request.apci == 2:
+                valve.position = int(tunnelling_request.data / 0xFF * 100)
         else:
             self.actuasim.logger.error('Destination address group not found in the simulator: ' +
                                        str(tunnelling_request.dest_addr_group))
@@ -50,13 +68,19 @@ class CommandHandler:
     def _ask_blind_short(self, tunnelling_request):
         blind = self._get_blind_from_group_address(tunnelling_request.dest_addr_group)
         if blind is not None:
-            data, data_size, apci = blind.position, 2, 2
+            data = blind.position
+            data_size = 2
+            apci = 1
+            data_service = 0x29
+            sequence_counter = 1
             tunnel_req_response = knxnet.create_frame(knxnet.ServiceTypeDescriptor.TUNNELLING_REQUEST,
                                                       tunnelling_request.dest_addr_group,
                                                       tunnelling_request.channel_id,
                                                       data,
                                                       data_size,
-                                                      apci)
+                                                      apci,
+                                                      data_service,
+                                                      sequence_counter)
             return tunnel_req_response
         else:
             self.actuasim.logger.error('Destination address group not found in the simulator: ' +

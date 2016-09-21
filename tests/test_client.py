@@ -71,12 +71,29 @@ def write_data_to_group_addr(dest_group_addr, data, data_size):
     print(tunnel_req)
     sock.sendto(tunnel_req.frame, (udp_ip, udp_port))
 
-    # Tunnel ack
+    # Read Tunnel ack
     data_recv, addr = sock.recvfrom(1024)
     ack = knxnet.decode_frame(data_recv)
     print('<== Received tunnelling ack:')
     print(repr(ack))
     print(ack)
+
+    # Tunnel request confirm
+    data_recv, addr = sock.recvfrom(1024)
+    confirm_req = knxnet.decode_frame(data_recv)
+    print('<== Received tunnelling request confirmation:')
+    print(repr(confirm_req))
+    print(confirm_req)
+
+    # send Tunnel ack
+    tunnel_ack = knxnet.create_frame(knxnet.ServiceTypeDescriptor.TUNNELLING_ACK,
+                                     confirm_req.channel_id,
+                                     0,
+                                     confirm_req.sequence_counter)
+    print('==> Send tunnelling ack to {0}:{1}'.format(udp_ip, udp_port))
+    print(repr(tunnel_ack))
+    print(tunnel_ack)
+    sock.sendto(tunnel_ack.frame, (udp_ip, udp_port))
 
     # Disconnect request
     disconnect_req = knxnet.create_frame(knxnet.ServiceTypeDescriptor.DISCONNECT_REQUEST,
@@ -150,6 +167,23 @@ def read_data_from_group_addr(dest_group_addr, data, data_size):
     print(repr(ack))
     print(ack)
 
+    # Tunnel request confirm
+    data_recv, addr = sock.recvfrom(1024)
+    confirm_req = knxnet.decode_frame(data_recv)
+    print('<== Received tunnelling request confirmation:')
+    print(repr(confirm_req))
+    print(confirm_req)
+
+    # send Tunnel ack
+    tunnel_ack = knxnet.create_frame(knxnet.ServiceTypeDescriptor.TUNNELLING_ACK,
+                                     confirm_req.channel_id,
+                                     0,
+                                     confirm_req.sequence_counter)
+    print('==> Send tunnelling ack to {0}:{1}'.format(udp_ip, udp_port))
+    print(repr(tunnel_ack))
+    print(tunnel_ack)
+    sock.sendto(tunnel_ack.frame, (udp_ip, udp_port))
+
     # Receive tunnelling request
     data_recv, addr = sock.recvfrom(1024)
     received_tunnelling_req = knxnet.decode_frame(data_recv)
@@ -176,39 +210,28 @@ def read_data_from_group_addr(dest_group_addr, data, data_size):
 
 
 def print_usage():
-    print('Usage: python3 test_client.py COMMAND [GROUP_ADDR] DATA')
-    print('COMMAND LIST:')
-    print('              -a GROUP_ADDR DATA    one blind/valve')
-    print('              -b      no longer supported')
-    print('              -v      no longer supported')
-    print('DATA (INTEGER):')
-    print('              0 for blind up')
-    print('              1 for blind down')
-    print('              [0-255] for blind position')
-    print('              [0-255] for valve position')
-    print('Main Group address: 0 = valve')
-    print('                    1 = blind up down')
-    print('                    3 = blind position')
-    print('Example: python3 test_client.py -a 1/4/1 1')
+    print('Usage: python3 test_client.py [read/write] [GROUP_ADDR] DATA')
+    print('Main group addr: 0 = valve (read or write)')
+    print('                 1 -> blind up or down (write)')
+    print('                 3 -> blind position (write)')
+    print('                 4 -> blind position (read)')
+    print('Example: python3 test_client.py write 3/4/1 67')
+    print('         python3 test_client.py read 0/4/1 0')
 
 if __name__ == '__main__':
-    if len(sys.argv) < 2:
+    if len(sys.argv) != 4:
         print_usage()
         sys.exit(0)
-    elif sys.argv[1] == '-a':
-        if len(sys.argv) != 4:
-            print_usage()
-            sys.exit(0)
-        dest = knxnet.GroupAddress.from_str(sys.argv[2])
+
+    dest = knxnet.GroupAddress.from_str(sys.argv[2])
+    if sys.argv[1] == 'write':
         if dest.main_group == 0:
             write_data_to_group_addr(dest, int(sys.argv[3]), 2)
         elif dest.main_group == 1:
             write_data_to_group_addr(dest, int(sys.argv[3]), 1)
         elif dest.main_group == 3:
             write_data_to_group_addr(dest, int(sys.argv[3]), 2)
-        elif dest.main_group == 4:
-            read_data_from_group_addr(dest, int(sys.argv[3]), 2)
-        else:
-            print('Unsupported destination group address: main group has to be [0,1,3,4]')
+    elif sys.argv[1] == 'read':
+        read_data_from_group_addr(dest, int(sys.argv[3]), 2)
     else:
         print_usage()

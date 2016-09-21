@@ -60,6 +60,7 @@ class Actuasim(QMainWindow):
         self.data_endpoint = ('0.0.0.0', 0)
         self.status = 0
         self.channel_id = random.randint(0, 255)  # TODO: handle multiple channel
+        self.tunnel_req_data_response = None  # Store the tunneling request that contains the response for a read
 
         # server
         self.knxserver = Knxserver()
@@ -177,27 +178,39 @@ class Actuasim(QMainWindow):
             self.logger.info('= Disconnect response:\n' + str(disconnect_resp))
         elif decoded_frame.header.service_type_descriptor == knxnet.ServiceTypeDescriptor.TUNNELLING_REQUEST:
             self.logger.info('= Tunnelling request:\n' + str(decoded_frame))
-            tunnel_req_response = self.command_handler.handle_tunnelling_request(decoded_frame)
+            self.tunnel_req_data_response = self.command_handler.handle_tunnelling_request(decoded_frame)
             tunnel_ack = knxnet.create_frame(knxnet.ServiceTypeDescriptor.TUNNELLING_ACK,
                                              self.channel_id,
-                                             self.status)
+                                             self.status,
+                                             decoded_frame.sequence_counter)
             self.knxserver.send(tunnel_ack.frame)
             self.logger.info('Frame sent:' + repr(tunnel_ack))
             self.logger.info('= Tunnelling ack:\n' + str(tunnel_ack))
 
-            # TODO: after sending our tunnelling ack
+            # after sending our tunnelling ack
             # we must send a tunnelling request to confirm the data
-            # and read a tunnelling ack
-            # and if the 1st request is a read, then we can send the tunnelling request with the data
+            data_service = 0x2e
+            sequence_counter = 0
+            tunnel_req_confirm = knxnet.create_frame(knxnet.ServiceTypeDescriptor.TUNNELLING_REQUEST,
+                                                     decoded_frame.dest_addr_group,
+                                                     decoded_frame.channel_id,
+                                                     decoded_frame.data,
+                                                     decoded_frame.data_size,
+                                                     decoded_frame.apci,
+                                                     data_service,
+                                                     sequence_counter)
+            self.knxserver.send(tunnel_req_confirm.frame)
+            self.logger.info('Frame sent:' + repr(tunnel_req_confirm))
+            self.logger.info('= Tunnelling ack:\n' + str(tunnel_req_confirm))
 
-            # TODO: if a tunnelling request read has an invalid dest group addr
-            # actuasim does not send anything
-
-            # Do we have some tunnelling requests to send?
-            if tunnel_req_response:
-                self.knxserver.send(tunnel_req_response.frame)
-                self.logger.info('Frame sent:' + repr(tunnel_req_response))
-                self.logger.info('= Tunnelling request:\n' + str(tunnel_req_response))
+        elif decoded_frame.header.service_type_descriptor == knxnet.ServiceTypeDescriptor.TUNNELLING_ACK:
+            self.logger.info('= Tunnelling ack:\n' + str(decoded_frame))
+            # Do we have a response to send?
+            if self.tunnel_req_data_response:
+                self.knxserver.send(self.tunnel_req_data_response.frame)
+                self.logger.info('Frame sent:' + repr(self.tunnel_req_data_response))
+                self.logger.info('= Tunnelling request:\n' + str(self.tunnel_req_data_response))
+                self.tunnel_req_data_response = None
 
         else:
             self.logger.info('The frame is not supported')
