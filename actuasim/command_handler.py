@@ -68,7 +68,7 @@ class CommandHandler:
     def _ask_blind_short(self, tunnelling_request):
         blind = self._get_blind_from_group_address(tunnelling_request.dest_addr_group)
         if blind is not None:
-            data = blind.position
+            data = int(blind.position / 100 * 0xFF)
             data_size = 2
             apci = 1
             data_service = 0x29
