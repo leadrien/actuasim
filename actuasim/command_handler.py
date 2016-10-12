@@ -5,7 +5,7 @@ from knxnet import *
 __author__ = "Adrien Lescourt"
 __copyright__ = "HES-SO 2015, Project EMG4B"
 __credits__ = ["Adrien Lescourt"]
-__version__ = "1.0.1"
+__version__ = "1.0.2"
 __email__ = "adrien.lescourt@gmail.com"
 __status__ = "Prototype"
 
@@ -45,7 +45,7 @@ class CommandHandler:
                 return tunnel_req_response
             # write
             elif tunnelling_request.apci == 2:
-                valve.position = int(tunnelling_request.data / 0xFF * 100)
+                valve.position = tunnelling_request.data
         else:
             self.actuasim.logger.error('Destination address group not found in the simulator: ' +
                                        str(tunnelling_request.dest_addr_group))
@@ -55,8 +55,7 @@ class CommandHandler:
         if blind is not None:
             if tunnelling_request.dest_addr_group.main_group == 3:
                 value = tunnelling_request.data
-                blind_value = int(value * (100 / 255))  # [0-255] to [0-100]
-                blind.move_to(blind_value)
+                blind.move_to(value)
             elif tunnelling_request.data == 0:
                 blind.move_up()
             elif tunnelling_request.data == 1:
@@ -68,7 +67,7 @@ class CommandHandler:
     def _ask_blind_short(self, tunnelling_request):
         blind = self._get_blind_from_group_address(tunnelling_request.dest_addr_group)
         if blind is not None:
-            data = int(blind.position / 100 * 0xFF)
+            data = blind.position
             data_size = 2
             apci = 1
             data_service = 0x29

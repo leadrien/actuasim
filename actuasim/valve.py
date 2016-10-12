@@ -14,12 +14,15 @@ from actuasim.ui_valve import Ui_Valve
 __author__ = "Adrien Lescourt"
 __copyright__ = "HES-SO 2015, Project EMG4B"
 __credits__ = ["Adrien Lescourt"]
-__version__ = "1.0.1"
+__version__ = "1.0.2"
 __email__ = "adrien.lescourt@gmail.com"
 __status__ = "Prototype"
 
 
 class ValveWidget(QWidget):
+
+    MAX_PROGRESS_BAR = 255
+
     def __init__(self, individual_address, group_address, valve_position=45, animation_speed_ms=1500):
         super(ValveWidget, self).__init__()
         self.ui = Ui_Valve()
@@ -58,8 +61,8 @@ class ValveWidget(QWidget):
         self._position = value
         if self._position < 0:
             self._position = 0
-        if self._position > 100:
-            self._position = 100
+        if self._position > ValveWidget.MAX_PROGRESS_BAR:
+            self._position = ValveWidget.MAX_PROGRESS_BAR
         self.logger.info('Valve ' + self.address_str + ' = ' + str(self._position))
         self.ui.labelPositionValue.setText(str(self._position))
         self.repaint()
@@ -74,6 +77,8 @@ class ValveWidget(QWidget):
         painter = QPainter(self)
         painter.setRenderHint(int(QPainter.SmoothPixmapTransform) | int(QPainter.Antialiasing))
         painter.drawImage(self.temperature_bar_rect, self.temperature_bar_image)
-        x = self.line_origin.x() + self.line_length * sin(radians((100-self.position)*1.8+90))
-        y = self.line_origin.y() + self.line_length * cos(radians((100-self.position)*1.8+90))
+        to_180_degree = 180 / ValveWidget.MAX_PROGRESS_BAR
+        angle = (ValveWidget.MAX_PROGRESS_BAR - self.position) * to_180_degree + 90
+        x = self.line_origin.x() + self.line_length * sin(radians(angle))
+        y = self.line_origin.y() + self.line_length * cos(radians(angle))
         painter.drawLine(self.line_origin, QPoint(x, y))

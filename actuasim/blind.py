@@ -11,12 +11,15 @@ from actuasim.ui_blind import Ui_Blind
 __author__ = "Adrien Lescourt"
 __copyright__ = "HES-SO 2015, Project EMG4B"
 __credits__ = ["Adrien Lescourt"]
-__version__ = "1.0.1"
+__version__ = "1.0.2"
 __email__ = "adrien.lescourt@gmail.com"
 __status__ = "Prototype"
 
 
 class BlindWidget(QWidget):
+
+    MAX_PROGRESS_BAR = 255
+
     def __init__(self, individual_address, group_address, blind_position=0, animation_speed_ms=1500):
         super(BlindWidget, self).__init__()
 
@@ -32,6 +35,7 @@ class BlindWidget(QWidget):
         self.is_moving = False
         self.animation_speed = animation_speed_ms
         self.animate_progress = QPropertyAnimation(self.ui.progressBar, QByteArray(bytes('value', 'utf-8')))
+        self.ui.progressBar.setMaximum(BlindWidget.MAX_PROGRESS_BAR)
         self.ui.progressBar.setValue(0)
         self.position = blind_position
         self.setFixedWidth(220)
@@ -56,8 +60,8 @@ class BlindWidget(QWidget):
     def position(self, value):
         if value < 0:
             value = 0
-        if value > 100:
-            value = 100
+        if value > BlindWidget.MAX_PROGRESS_BAR:
+            value = BlindWidget.MAX_PROGRESS_BAR
         self.animate_progressbar(value)
 
     def update_position_value(self):
@@ -83,7 +87,7 @@ class BlindWidget(QWidget):
     def move_up(self):
         self.logger.info('Blind ' + self.address_str + ' UP')
         self.animation_finished()
-        self.animate_progressbar(100)
+        self.animate_progressbar(BlindWidget.MAX_PROGRESS_BAR)
 
     def move_to(self, value):
         self.logger.info('Blind ' + self.address_str + ' MOVE TO %s' % value)
@@ -93,7 +97,7 @@ class BlindWidget(QWidget):
     def animate_progressbar(self, end_value):
         if end_value == self.ui.progressBar.value():
             return
-        blind_move_speed_ratio = abs(self.ui.progressBar.value()-end_value)/100
+        blind_move_speed_ratio = abs(self.ui.progressBar.value()-end_value)/BlindWidget.MAX_PROGRESS_BAR
         self.animate_progress.setDuration(self.animation_speed*blind_move_speed_ratio)
         self.animate_progress.setStartValue(self.ui.progressBar.value())
         self.animate_progress.setEndValue(end_value)
