@@ -4,7 +4,7 @@ The aim of Actuasim is to reproduce a very simple building KNX automation.
 It can be used to reproduce an existing building, in order to develop the KNX automation without disturbing people in their offices.
 It replaces a KNXnet/IP gateway, handles all received datagram and triggers the corresponding actions. And as much as the real building, blinds and valves positions can be set by the user as well.
 
-![Actuasim](https://github.com/leadrien/actuasim/blob/master/actuasim.png)
+![Actuasim](actuasim.png)
 
 # USAGE
 The program is written in Python3, and depends on:
@@ -29,7 +29,7 @@ A **actuasim.log** file is written to monitor every received frame or event with
 
 
 # TEST SERVER
-You can try the Actusim server with [test_client.py](https://github.com/leadrien/actuasim/blob/master/tests/test_client.py)
+You can try the Actusim server with [test_client.py](tests/test_client.py)
 
 ```
 Usage: python3 test_client.py [read/write] [GROUP_ADDR] DATA
