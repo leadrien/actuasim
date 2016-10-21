@@ -31,28 +31,18 @@ A **actuasim.log** file is written to monitor every received frame or event with
 # TEST SERVER
 You can try the Actusim server with [test_client.py](https://github.com/leadrien/actuasim/blob/master/tests/test_client.py)
 
-Usage: python test\_client.py COMMAND [GROUP_ADDR] DATA
-
-COMMAND LIST:
-
-              -a GROUP_ADDR DATA    one blind/valve
-
-
-DATA (INTEGER):
-
-              0 for blind up
-
-              1 for blind down
-
-              [0-255] for valve position
-
-Example to shut down the first blind of the first room in the defauld Actuasim configuration:
-
-`python test_client.py -a 1/4/1 1`
-
+```
+Usage: python3 test_client.py [read/write] [GROUP_ADDR] DATA
+Main group addr: 0 = valve (read or write)
+                 1 -> blind up or down (write)
+                 3 -> blind position (write)
+                 4 -> blind position (read)
+Example: python3 test_client.py write 3/4/1 67
+         python3 test_client.py read 0/4/1 0
+```
 
 # REPRODUCED HARDWARE
 
-- **Blind**: Tunneling data has to be boolean and will order the blind to move 1=Down or 0=Up
+- **Blind**: Tunneling data can be boolean (will order the blind to move 1=Down or 0=Up) or byte to direct blind position
 
 - **Radiator valve**: Tunneling data is one byte, the direct valve position
